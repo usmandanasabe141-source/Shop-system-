@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ha">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Market System</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+        }
+
+        .header {
+            background: #10b981;
+            padding: 20px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .nav {
+            display: flex;
+            background: #111827;
+        }
+
+        .nav button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .nav button:hover {
+            background: #1f2937;
+        }
+
+        .page {
+            display: none;
+            padding: 20px;
+        }
+
+        .show {
+            display: block;
+        }
+
+        .card {
+            max-width: 900px;
+            margin: 20px auto;
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            background: #0f172a;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: 2px solid #10b981;
+        }
+
+        .save {
+            width: 100%;
+            padding: 14px;
+            margin-top: 15px;
+            background: #10b981;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .save:hover {
+            background: #059669;
+        }
+
+        .delete {
+            background: #ef4444;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .delete:hover {
+            background: #dc2626;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+
+        th {
+            background: #111827;
+        }
+
+        .price {
+            font-size: 35px;
+            text-align: center;
+            color: #00ff88;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        🛒 SUPER MARKET SYSTEM
+    </div>
+
+    <div class="nav">
+        <button onclick="show('dashboard')">Dashboard</button>
+        <button onclick="show('products')">Products</button>
+        <button onclick="show('search')">Search</button>
+    </div>
+
+    <div id="dashboard" class="page show">
+        <div class="card">
+            <h2>Dashboard</h2>
+            <p>Total Products: <span id="count" style="color: #10b981; font-weight: bold;">0</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody id="rows">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="products" class="page">
+        <div class="card">
+            <h2>Add Product</h2>
+            <input id="name" placeholder="Product Name">
+            <input id="price" type="number" placeholder="Price ₦">
+            <input id="qty" type="number" placeholder="Quantity">
+            <button class="save" onclick="saveProduct()">Save Product</button>
+        </div>
+    </div>
+
+    <div id="search" class="page">
+        <div class="card">
+            <h2>Search Product</h2>
+            <input id="searchBox" placeholder="Enter Product Name" oninput="searchProduct()">
+            <div class="price" id="result">₦0</div>
+        </div>
+    </div>
+
+    <script>
+        // Dauko kayayyaki daga LocalStorage
+        let products = JSON.parse(localStorage.getItem("products")) || [];
+
+        // Ajiye kaya a LocalStorage da sabunta dandalin nuni
+        function save() {
+            localStorage.setItem("products", JSON.stringify(products));
+            render();
+        }
+
+        // Karbar sabon kaya
+        function saveProduct() {
+            const nameInput = document.getElementById("name");
+            const priceInput = document.getElementById("price");
+            const qtyInput = document.getElementById("qty");
+
+            let n = nameInput.value.trim();
+            let p = priceInput.value.trim();
+            let q = qtyInput.value.trim();
+
+            if (!n || !p || !q) {
+                alert("Don Allah cika dukkan gurbi!");
+                return;
+            }
+
+            let found = products.find(x => x.name.toLowerCase() === n.toLowerCase());
+
+            if (found) {
+                found.price = p;
+                found.qty = q;
+            } else {
+                products.push({ name: n, price: p, qty: q });
+            }
+
+            save();
+            alert("An ajiye cikin nasara!");
+
+            // Wanke akwatinan bayan an yi save
+            nameInput.value = "";
+            priceInput.value = "";
+            qtyInput.value = "";
+
+            show("dashboard");
+        }
+
+        // Nuna kayayyaki a teburin Dashboard
+        function render() {
+            const rows = document.getElementById("rows");
+            const count = document.getElementById("count");
+            
+            rows.innerHTML = "";
+
+            products.forEach((item, index) => {
+                rows.innerHTML += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>₦${Number(item.price).toLocaleString()}</td>
+                        <td>${item.qty}</td>
+                        <td>
+                            <button class="delete" onclick="removeProduct(${index})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            count.innerHTML = products.length;
+        }
+
+        // Goge kaya
+        function removeProduct(i) {
+            if(confirm("Kana da tabbas kana son goge wannan kayan?")) {
+                products.splice(i, 1);
+                save();
+            }
+        }
+
+        // Neman kaya
+        function searchProduct() {
+            const searchBox = document.getElementById("searchBox");
+            const result = document.getElementById("result");
+            let text = searchBox.value.trim().toLowerCase();
+
+            if (!text) {
+                result.innerHTML = "₦0";
+                return;
+            }
+
+            let found = products.find(x => x.name.toLowerCase().includes(text));
+
+            result.innerHTML = found ? "₦" + Number(found.price).toLocaleString() : "Ba a samu ba";
+        }
+
+        // Sauya shafuka
+        function show(id) {
+            document.querySelectorAll(".page").forEach(x => x.classList.remove("show"));
+            document.getElementById(id).classList.add("show");
+        }
+
+        // Fara nuna ainihin bayanan da ke ajiye tun farko
+        render();
+    </script>
+</body>
+</html>
