@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COELS Secure Broadsheet & Result Management System</title>
+    <style>
+        :root {
+            --coels-blue: #0f3057;
+            --coels-accent: #ffc107;
+            --coels-light: #008891;
+            --coels-bg: #f5f7fa;
+            --dark-text: #222831;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--coels-bg);
+            color: var(--dark-text);
+            padding-bottom: 3rem;
+        }
+
+        .coels-header {
+            background-color: var(--coels-blue);
+            color: white;
+            text-align: center;
+            padding: 1.5rem 1rem;
+            border-bottom: 5px solid var(--coels-accent);
+        }
+
+        /* WANNAN SHI NE TSARIN GYARAN HOTO NA BAJEN MAKARANTAR */
+        .coels-header .school-logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            background: white;
+            padding: 4px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .coels-header h1 {
+            font-size: 1.5rem;
+            text-transform: uppercase;
+        }
+
+        .coels-header h2 {
+            font-size: 1.1rem;
+            color: var(--coels-accent);
+            margin-top: 0.3rem;
+        }
+
+        .container {
+            max-width: 1350px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+        }
+
+        .portal-nav {
+            display: flex;
+            background: white;
+            border: 1px solid #dbe2ef;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .nav-link {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            background: #f1f4f9;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--coels-blue);
+            text-transform: uppercase;
+        }
+
+        .nav-link.active {
+            background-color: var(--coels-blue);
+            color: white;
+            border-bottom: 3px solid var(--coels-accent);
+        }
+
+        .portal-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: none;
+        }
+
+        .portal-card.active {
+            display: block;
+        }
+
+        .secure-lock-screen {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: #fff;
+            border-radius: 4px;
+            border-top: 4px solid var(--coels-blue);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .secure-lock-screen input {
+            max-width: 300px;
+            margin: 1rem auto;
+            text-align: center;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 1.2rem;
+            color: var(--coels-blue);
+            text-transform: uppercase;
+            border-bottom: 2px solid #e1e8ed;
+            padding-bottom: 0.3rem;
+            font-weight: 700;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .btn-control {
+            padding: 0.5rem 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .btn-add { background-color: #28a745; color: white; }
+        .btn-remove { background-color: #dc3545; color: white; }
+
+        .courses-subgrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 10px;
+            background: #f7fafc;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .course-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: white;
+            padding: 6px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+        }
+
+        .course-code-field {
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+            background: #edf2f7;
+            border: 1px solid #a0aec0;
+            color: var(--coels-blue);
+            font-size: 0.8rem;
+            padding: 4px;
+        }
+
+        .grade-field {
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 4px;
+            border: 1px solid #cbd5e0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: #4a5568;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .coels-btn {
+            background-color: var(--coels-blue);
+            color: white;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            width: 100%;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 1.5rem;
+            border: 1px solid #cbd5e0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            text-align: center;
+            background: white;
+            min-width: 1350px;
+        }
+
+        th, td {
+            border: 1px solid #a0aec0;
+            padding: 6px 4px;
+        }
+
+        th {
+            background-color: #ebf8ff;
+            color: #2b6cb0;
+            font-weight: bold;
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        tbody tr:hover {
+            background-color: #ffeef0 !important;
+        }
+
+        .course-hdr {
+            background-color: #f7fafc;
+            font-size: 0.7rem;
+            font-weight: bold;
+            min-width: 65px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .pass-badge { color: green; font-weight: bold; }
+        .fail-badge { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- ANAN AN SAKA HOTON BAJEN DA SUNAN logo.jpg A SAMAN RUBUTU -->
+    <header class="coels-header">
+        <img src="logo.jpg" alt="COELS Logo" class="school-logo">
+        <h1>College of Education and Legal Studies, Nguru</h1>
+        <h2>Secure Dynamic Student Broadsheet System</h2>
+        <p>Developer: Usman Dan Asabe Isa | Department of Computer Science</p>
+    </header>
+
+    <div class="container">
+        <div class="portal-nav">
+            <button class="nav-link active" id="tab-admin" onclick="switchTab('admin-panel')">Upload BroadSheet Results</button>
+            <button class="nav-link" id="tab-student" onclick="switchTab('student-panel')">Student Result Checker</button>
+        </div>
+
+        <!-- UPLOAD SECTION (SECURED) -->
+        <div id="admin-panel" class="portal-card active">
+            
+            <!-- Lock Screen Display -->
+            <div id="lockScreen" class="secure-lock-screen">
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🔒</div>
+                <h3 style="color: var(--coels-blue);">Administrator Verification Required</h3>
+                <p style="color: #718096; font-size: 0.9rem;">Please enter the security password to unlock the broadsheet matrix.</p>
+                <input type="password" id="adminPassInput" placeholder="••••••••" onkeydown="if(event.key==='Enter') verifyAdminKey()">
+                <button type="button" class="coels-btn" style="max-width: 300px; margin: 0 auto; display: block;" onclick="verifyAdminKey()">Unlock Portal</button>
+            </div>
+
+            <!-- Main Panel Content -->
+            <div id="secureContent" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div class="section-title" style="margin-bottom:0; border-bottom:none;">Enter Student Semester Record</div>
+                    <button type="button" class="btn-control btn-remove" onclick="lockAdminPortal()">🔒 Lock Desk</button>
+                </div>
+                
+                <form id="broadsheetForm">
+                    <div class="form-grid">
+                        <div><label>Matric No.</label><input type="text" id="matricNo" required></div>
+                        <div><label>Student Full Name</label><input type="text" id="studentName" required></div>
+                        <div>
+                            <label>Select Semester</label>
+                            <select id="semester" required>
+                                <option value="First Semester">First Semester</option>
+                                <option value="Second Semester">Second Semester</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Remark Status</label>
+                            <select id="remark">
+                                <option value="Pass">Pass</option>
+                                <option value="Spill">Spill</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="section-title" style="font-size: 1rem; margin-top: 1rem; border-bottom:none; margin-bottom:0.5rem;">
+                        Type Course Codes & Grades
+                    </div>
+                    <div class="controls-row">
+                        <button type="button" class="btn-control btn-add" onclick="addCourseInput()">➕ Add Course Slot</button>
+                        <button type="button" class="btn-control btn-remove" onclick="removeCourseInput()">➖ Remove Last Slot</button>
+                    </div>
+
+                    <div class="courses-subgrid" id="coursesContainer"></div>
+
+                    <div class="section-title" style="font-size: 1rem;">Current & Previous Academic Summaries</div>
+                    <div class="form-grid">
+                        <div><label>CUR (Current Reg)</label><input type="number" id="cur" required></div>
+                        <div><label>CUE (Current Earned)</label><input type="number" id="cue" required></div>
+                        <div><label>WGP (Weighted GP)</label><input type="number" id="wgp" required></div>
+                        <div><label>GPA</label><input type="number" step="0.01" id="gpa" required></div>
+                    </div>
+                    <div class="form-grid">
+                        <div><label>PTCUR (Prev Reg)</label><input type="number" id="ptcur" required></div>
+                        <div><label>PTCUE (Prev Earned)</label><input type="number" id="ptcue" required></div>
+                        <div><label>PTWGP (Prev WGP)</label><input type="number" id="ptwgp" required></div>
+                        <div><label>PCGPA (Prev CGPA)</label><input type="number" step="0.01" id="pcgpa" required></div>
+                    </div>
+
+                    <button type="submit" class="coels-btn">Save to Official Broadsheet</button>
+                </form>
+
+                <div id="databaseViewSection" style="display: none; margin-top: 2rem;">
+                    <div class="section-title">Official Master Broadsheet Database View</div>
+                    <p style="font-size: 0.8rem; color: #dc3545; font-weight: bold; margin-bottom: 0.5rem;">💡 Realtime Sync Live: Clicking on any row deletes it across ALL devices instantly.</p>
+                    <div class="table-container">
+                        <table id="broadsheetTable">
+                            <thead>
+                                <tr id="mainHeaderRow">
+                                    <th rowspan="2">S/N</th>
+                                    <th rowspan="2">Matric No.</th>
+                                    <th rowspan="2">Semester</th>
+                                    <th colspan="0" id="courseMegaHeader">Course Grades</th>
+                                    <th rowspan="2">CUR</th>
+                                    <th rowspan="2">CUE</th>
+                                    <th rowspan="2">WGP</th>
+                                    <th rowspan="2">GPA</th>
+                                    <th rowspan="2">PTCUR</th>
+                                    <th rowspan="2">PTCUE</th>
+                                    <th rowspan="2">PTWGP</th>
+                                    <th rowspan="2">PCGPA</th>
+                                    <th rowspan="2">TCUR</th>
+                                    <th rowspan="2">TCUE</th>
+                                    <th rowspan="2">TWGP</th>
+                                    <th rowspan="2">CGPA</th>
+                                    <th rowspan="2">Remark</th>
+                                </tr>
+                                <tr id="subCourseHeaderRow"></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STUDENT PANEL -->
+        <div id="student-panel" class="portal-card">
+            <div class="section-title">Check Semester Result Slip</div>
+            <div style="margin-bottom: 1rem;">
+                <label>Enter Matric Number</label>
+                <input type="text" id="searchMatric" placeholder="Matric Number">
+            </div>
+            <button onclick="checkStudentResult()" class="coels-btn" style="background-color: var(--coels-light);">Search Result</button>
+
+            <div id="singleSlip" style="display:none; margin-top: 2rem; border: 2px double #a0aec0; padding: 1.5rem; background: #fff;">
+                <h3 style="text-align:center; color: var(--coels-blue);">COLLEGE OF EDUCATION AND LEGAL STUDIES, NGURU</h3>
+                <h4 style="text-align:center; margin-bottom: 1rem;">OFFICIAL PERFORMANCE STATEMENT</h4>
+                <p><strong>Name:</strong> <span id="slipName"></span> | <strong>Matric No:</strong> <span id="slipMatric"></span></p>
+                <p><strong>Semester:</strong> <span id="slipSemester" style="color: var(--coels-light); font-weight: bold;"></span></p>
+                <hr style="margin: 1rem 0;">
+                
+                <table style="min-width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Current Semester</th>
+                            <th>Previous Cumulative</th>
+                            <th>Total Cumulative (Total)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Credit Units Registered (CUR)</td><td id="sCur"></td><td id="sPtcur"></td><td id="sTcur"></td></tr>
+                        <tr><td>Credit Units Earned (CUE)</td><td id="sCue"></td><td id="sPtcue"></td><td id="sTcue"></td></tr>
+                        <tr><td>Weighted Grade Points (WGP)</td><td id="sWgp"></td><td id="sPtwgp"></td><td id="sTwgp"></td></tr>
+                        <tr><td>Grade Point Average (GPA/CGPA)</td><td id="sGpa" style="font-weight:bold;"></td><td id="sPcgpa"></td><td id="sCgpa" style="font-weight:bold; color:var(--coels-blue);"></td></tr>
+                    </tbody>
+                </table>
+                
+                <h5 style="margin-top: 1.5rem; color: var(--coels-blue);">Registered Courses Breakdown:</h5>
+                <ul id="slipCoursesBreakdown" style="padding-left: 20px; font-size: 0.9rem; margin-top: 0.5rem;"></ul>
+
+                <p style="margin-top: 1rem; font-weight:bold;">Final Remark Status: <span id="slipRemark"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // FIREBASE CONNECTIVITY URL
+        const FIREBASE_DB_URL = "https://coels-portal-9da30-default-rtdb.firebaseio.com"; 
+
+        let courseSlotCount = 0;
+        let isVerified = false; 
+        const SECURITY_KEY = "Admin@COELS2026";
+        const initialSlotsCount = 4;
+        let globalDatabase = {}; 
+
+        function verifyAdminKey() {
+            const inputVal = document.getElementById('adminPassInput').value;
+            if(inputVal === SECURITY_KEY) {
+                isVerified = true;
+                document.getElementById('lockScreen').style.display = 'none';
+                document.getElementById('secureContent').style.display = 'block';
+                fetchRealtimeData();
+            } else {
+                alert("Access Denied!");
+                document.getElementById('adminPassInput').value = '';
+            }
+        }
+
+        function lockAdminPortal() {
+            isVerified = false;
+            document.getElementById('adminPassInput').value = '';
+            document.getElementById('secureContent').style.display = 'none';
+            document.getElementById('lockScreen').style.display = 'block';
+        }
+
+        function addCourseInput(codeValue = "", gradeValue = "") {
+            courseSlotCount++;
+            const container = document.getElementById('coursesContainer');
+            const div = document.createElement('div');
+            div.className = 'course-input-group';
+            div.id = `courseGroup_${courseSlotCount}`;
+            div.innerHTML = `
+                <input type="text" class="course-code-field" id="cc_${courseSlotCount}" value="${codeValue}" placeholder="Course">
+                <input type="text" class="grade-field" id="g_${courseSlotCount}" value="${gradeValue}" maxlength="1" placeholder="Grade">
+            `;
+            container.appendChild(div);
+        }
+
+        function removeCourseInput() {
+            if (courseSlotCount <= 1) return;
+            const el = document.getElementById(`courseGroup_${courseSlotCount}`);
+            if (el) el.remove();
+            courseSlotCount--;
+        }
+
+        function initFormSlots() {
+            document.getElementById('coursesContainer').innerHTML = "";
+            courseSlotCount = 0;
+            for(let i=0; i < initialSlotsCount; i++) addCourseInput();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.portal-card').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if(tabId === 'admin-panel') {
+                document.getElementById('tab-admin').classList.add('active');
+                if(isVerified) renderBroadsheetTable();
+            } else {
+                document.getElementById('tab-student').classList.add('active');
+                fetchRealtimeData(); 
+            }
+        }
+
+        function fetchRealtimeData() {
+            fetch(`${FIREBASE_DB_URL}/results.json`)
+            .then(res => res.json())
+            .then(data => {
+                globalDatabase = data ? data : {};
+                if(isVerified && document.getElementById('admin-panel').classList.contains('active')) {
+                    renderBroadsheetTable();
+                }
+            })
+            .catch(err => console.error("Database connection error: ", err));
+        }
+
+        document.getElementById('broadsheetForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if(!isVerified) return;
+
+            let structuredCourses = [];
+            for (let i = 1; i <= courseSlotCount; i++) {
+                let codeEl = document.getElementById(`cc_${i}`);
+                let gradeEl = document.getElementById(`g_${i}`);
+                if (codeEl && gradeEl && codeEl.value.trim() !== "") {
+                    structuredCourses.push({
+                        code: codeEl.value.trim().toUpperCase(),
+                        grade: gradeEl.value.trim().toUpperCase() || "-"
+                    });
+                }
+            }
+
+            let newRecord = {
+                matricNo: document.getElementById('matricNo').value.trim(),
+                studentName: document.getElementById('studentName').value.trim(),
+                semester: document.getElementById('semester').value,
+                remark: document.getElementById('remark').value,
+                courses: structuredCourses,
+                cur: parseInt(document.getElementById('cur').value) || 0,
+                cue: parseInt(document.getElementById('cue').value) || 0,
+                wgp: parseInt(document.getElementById('wgp').value) || 0,
+                gpa: parseFloat(document.getElementById('gpa').value) || 0.0,
+                ptcur: parseInt(document.getElementById('ptcur').value) || 0,
+                ptcue: parseInt(document.getElementById('ptcue').value) || 0,
+                ptwgp: parseInt(document.getElementById('ptwgp').value) || 0,
+                pcgpa: parseFloat(document.getElementById('pcgpa').value) || 0.0
+            };
+
+            fetch(`${FIREBASE_DB_URL}/results.json`, {
+                method: 'POST',
+                body: JSON.stringify(newRecord)
+            })
+            .then(() => {
+                alert('Record saved globally across all portals!');
+                fetchRealtimeData();
+                this.reset();
+                initFormSlots();
+            });
+        });
+
+        function deleteRecord(firebaseKey, name) {
+            if(confirm(`Permanently delete ${name} from cloud server databases?`)) {
+                fetch(`${FIREBASE_DB_URL}/results/${firebaseKey}.json`, {
+                    method: 'DELETE'
+                })
+                .then(() => {
+                    alert('Deleted successfully across all devices.');
+                    fetchRealtimeData();
+                });
+            }
+        }
+
+        function renderBroadsheetTable() {
+            let containerDiv = document.getElementById('databaseViewSection');
+            let tbody = document.querySelector('#broadsheetTable tbody');
+            let subHdrRow = document.getElementById('subCourseHeaderRow');
+            
+            let keys = Object.keys(globalDatabase);
+
+            if (keys.length === 0) {
+                containerDiv.style.display = 'none';
+                tbody.innerHTML = '';
+                subHdrRow.innerHTML = '';
+                return;
+            }
+
+            containerDiv.style.display = 'block';
+            tbody.innerHTML = '';
+            subHdrRow.innerHTML = '';
+
+            let masterCourseList = [];
+            keys.forEach(k => {
+                let entry = globalDatabase[k];
+                if(entry.courses && Array.isArray(entry.courses)) {
+                    entry.courses.forEach(c => {
+                        if (c.code && !masterCourseList.includes(c.code)) {
+                            masterCourseList.push(c.code);
+                        }
+                    });
+                }
+            });
+
+            if(masterCourseList.length === 0) masterCourseList = ["-"];
+            document.getElementById('courseMegaHeader').setAttribute('colspan', masterCourseList.length);
+            masterCourseList.forEach(courseCode => {
+                subHdrRow.innerHTML += `<th class="course-hdr">${courseCode}</th>`;
+            });
+
+            keys.forEach((k, idx) => {
+                let r = globalDatabase[k];
+                let tcur = (r.cur || 0) + (r.ptcur || 0);
+                let tcue = (r.cue || 0) + (r.ptcue || 0);
+                let twgp = (r.wgp || 0) + (r.ptwgp || 0);
+                let cgpa = tcur > 0 ? (twgp / tcur).toFixed(2) : "0.00";
+
+                let courseCells = '';
+                masterCourseList.forEach(code => {
+                    let match = r.courses ? r.courses.find(c => c.code === code) : null;
+                    courseCells += `<td>${match ? match.grade : '-'}</td>`;
+                });
+
+                let row = `<tr onclick="deleteRecord('${k}', '${r.studentName}')" title="Click to wipe global record">
+                    <td>${idx + 1}</td>
+                    <td><strong>${r.matricNo || '-'}</strong></td>
+                    <td><span style="font-size:0.7rem;">${r.semester || '-'}</span></td>
+                    ${courseCells}
+                    <td>${r.cur || 0}</td><td>${r.cue || 0}</td><td>${r.wgp || 0}</td><td>${(r.gpa || 0).toFixed(2)}</td>
+                    <td>${r.ptcur || 0}</td><td>${r.ptcue || 0}</td><td>${r.ptwgp || 0}</td><td>${(r.pcgpa || 0).toFixed(2)}</td>
+                    <td>${tcur}</td><td>${tcue}</td><td>${twgp}</td><td style="font-weight:bold; background:#fffdf0;">${cgpa}</td>
+                    <td><span class="${r.remark === 'Pass' ? 'pass-badge' : 'fail-badge'}">${r.remark || 'Pass'}</span></td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function checkStudentResult() {
+            let search = document.getElementById('searchMatric').value.trim().toLowerCase();
+            let keys = Object.keys(globalDatabase);
+            let matchKey = keys.find(k => globalDatabase[k].matricNo && globalDatabase[k].matricNo.toLowerCase() === search);
+
+            if (!matchKey) {
+                alert('No profile matches inside Central Network Cloud.');
+                document.getElementById('singleSlip').style.display = 'none';
+                return;
+            }
+
+            let match = globalDatabase[matchKey];
+            document.getElementById('slipName').innerText = match.studentName || '-';
+            document.getElementById('slipMatric').innerText = (match.matricNo || '').toUpperCase();
+            document.getElementById('slipSemester').innerText = match.semester || 'First Semester';
+            
+            document.getElementById('sCur').innerText = match.cur || 0;
+            document.getElementById('sCue').innerText = match.cue || 0;
+            document.getElementById('sWgp').innerText = match.wgp || 0;
+            document.getElementById('sGpa').innerText = (match.gpa || 0).toFixed(2);
+
+            document.getElementById('sPtcur').innerText = match.ptcur || 0;
+            document.getElementById('sPtcue').innerText = match.ptcue || 0;
+            document.getElementById('sPtwgp').innerText = match.ptwgp || 0;
+            document.getElementById('sPcgpa').innerText = (match.pcgpa || 0).toFixed(2);
+
+            let totalCur = (match.cur || 0) + (match.ptcur || 0);
+            let totalCue = (match.cue || 0) + (match.ptcue || 0);
+            let totalWgp = (match.wgp || 0) + (match.ptwgp || 0);
+            
+            document.getElementById('sTcur').innerText = totalCur;
+            document.getElementById('sTcue').innerText = totalCue;
+            document.getElementById('sTwgp').innerText = totalWgp;
+            document.getElementById('sCgpa').innerText = totalCur > 0 ? (totalWgp / totalCur).toFixed(2) : "0.00";
+            document.getElementById('slipRemark').innerText = match.remark || 'Pass';
+
+            let courseList = document.getElementById('slipCoursesBreakdown');
+            courseList.innerHTML = '';
+            if(match.courses) {
+                match.courses.forEach(c => {
+                    courseList.innerHTML += `<li><strong>${c.code}:</strong> Grade ${c.grade}</li>`;
+                });
+            }
+            document.getElementById('singleSlip').style.display = 'block';
+        }
+
+        window.onload = function() {
+            initFormSlots();
+            fetchRealtimeData();
+            setInterval(fetchRealtimeData, 5000); 
+        };
+    </script>
+</body>
+</html>
